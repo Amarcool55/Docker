@@ -1,0 +1,49 @@
+services:
+  web:
+    image: amarjitsingh02/webapp
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Redis: "cache:6379"
+      ConnectionStrings__DefaultConnection: "Host=db:5432;Database=mydatabase;Username=user;Password=mysecretpassword"
+    ports:
+      - "8080:8080"
+      - "443:443"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    networks:
+      - app-network
+    volumes:
+      - "C:/proj/webapp:/app/logs"
+    command: ["sh", "-c", "sleep 15 -- dotnet WebApplication1.dll"]
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - "C:/proj/postgres:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  cache:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
