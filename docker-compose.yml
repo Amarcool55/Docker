@@ -17,7 +17,6 @@ services:
       - app-network
     volumes:
       - "C:/proj/webapp:/app/logs"
-    command: ["sh", "-c", "sleep 15 -- dotnet WebApplication1.dll"]
 
   db:
     image: postgres
