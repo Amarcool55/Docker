@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3.3.0
+      with:
+        username: ${{ vars.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+        
+    - name: Build and Push the Docker image
+      run: |
+       docker build . --file Dockerfile --tag amarjitsingh02/webapp:$(date +%s)
+       docker push amarjitsingh02/webapp:$(date +%s)
